@@ -5,7 +5,7 @@
 qp is a queue-processor designed with DX in mind. It basically accepts a queue, accepts your business logic then runs your business logic against all the incoming messages without you having to worry about ack'ing messages, backing off or pushing metrics to your metrics server.
 
 ## Why not use the sqs SDK directly?
-We can, the issue is that you want the provider to be abstract so that your code runs against various things. Also as a developers, we don't really like handling boring bits.
+We can, the issue is that you want the provider to be abstract so that your code runs against various things. We want to be able to focus on business logic instead of managing the processing of the business logic we actually want to implement.
 
 ## More about qp
 Imagine a business requirement, where you need to process incoming data, and if it fails, you want to backoff exponentially, and on top of that, you want to try the same message again later if it fails.
