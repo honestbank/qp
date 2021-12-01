@@ -1,3 +1,5 @@
+# This is managed workflow, do not change this file in downstream repo
+
 name: go-tests
 
 on:
@@ -62,7 +64,7 @@ jobs:
       - name: release
         uses: cycjimmy/semantic-release-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.ENGINEERING_GITHUB_PERSONAL_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           semantic_version: 16
           extra_plugins: |
