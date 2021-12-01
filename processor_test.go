@@ -25,6 +25,7 @@ func (m *mockMessage) String() string {
 	if m.acked {
 		return "true"
 	}
+
 	return "false"
 }
 

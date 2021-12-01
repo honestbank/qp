@@ -55,7 +55,7 @@ func (j *job) eventLoop(marker backoffPolicy.Marker) {
 		return
 	}
 	if msg == nil {
-		// no messages yet, no need to backoff either...
+		// no messages yet, it's not a failure or a success so no marking required.
 
 		return
 	}
