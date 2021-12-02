@@ -22,17 +22,9 @@ func NewPrometheus(url string) Prometheus {
 }
 
 func PushToPrometheus(gatewayURL string, metricsName string) (func(err error), error) {
-	registry := prometheus.NewRegistry()
 	successGauge := prometheus.NewGauge(prometheus.GaugeOpts{Name: "success"})
 	failureGauge := prometheus.NewGauge(prometheus.GaugeOpts{Name: "failure"})
 	client := NewPrometheus(gatewayURL).GetClient(metricsName).Collector(successGauge).Collector(failureGauge)
-	if err := registry.Register(successGauge); err != nil {
-		return nil, err
-	}
-	if err := registry.Register(failureGauge); err != nil {
-		return nil, err
-	}
-
 	return func(err error) {
 		if err != nil {
 			failureGauge.Inc()
