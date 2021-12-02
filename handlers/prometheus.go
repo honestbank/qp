@@ -32,11 +32,14 @@ func PushToPrometheus(gatewayURL string, metricsName string) (func(err error), e
 	if err := registry.Register(failureGauge); err != nil {
 		return nil, err
 	}
+
 	return func(err error) {
 		if err != nil {
 			failureGauge.Inc()
 		}
 		successGauge.Inc()
-		go client.Push()
+		go func() {
+			_ = client.Push()
+		}()
 	}, nil
 }
