@@ -57,6 +57,9 @@ jobs:
         with:
           go-version: "1.16"
         id: go
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '17'
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
         with:
@@ -66,8 +69,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          semantic_version: 16
+          semantic_version: 18
           extra_plugins: |
-            @semantic-release/git@7.0.18
-            @semantic-release/exec@3.3.8
-            @semantic-release/changelog@3.0.0
+            @semantic-release/git@10.0.1
+            @semantic-release/exec@6.0.2
+            @semantic-release/changelog@6.0.1
