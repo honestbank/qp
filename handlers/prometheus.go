@@ -25,6 +25,7 @@ func PushToPrometheus(gatewayURL string, metricsName string) (func(err error), e
 	successGauge := prometheus.NewGauge(prometheus.GaugeOpts{Name: "success"})
 	failureGauge := prometheus.NewGauge(prometheus.GaugeOpts{Name: "failure"})
 	client := NewPrometheus(gatewayURL).GetClient(metricsName).Collector(successGauge).Collector(failureGauge)
+
 	return func(err error) {
 		if err != nil {
 			failureGauge.Inc()
