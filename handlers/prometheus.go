@@ -5,7 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/push"
 )
 
-type Prometheus interface {
+type metrics interface {
 	getClient(metricName string) *push.Pusher
 }
 
@@ -17,7 +17,7 @@ func (p promClient) getClient(jobName string) *push.Pusher {
 	return push.New(p.URL, jobName)
 }
 
-func newPrometheus(url string) Prometheus {
+func newPrometheus(url string) metrics {
 	return &promClient{URL: url}
 }
 
