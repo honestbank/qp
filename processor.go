@@ -63,6 +63,7 @@ func (j *job) eventLoop(marker backoffPolicy.Marker) {
 	if err != nil {
 		marker.MarkFailure()
 		j.onResult(err)
+		_ = msg.Nack()
 
 		return
 	}

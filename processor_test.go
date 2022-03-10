@@ -23,6 +23,10 @@ type mockMessage struct {
 	ackingShouldFail bool
 }
 
+func (m *mockMessage) Nack() error {
+	return nil
+}
+
 func (m *mockMessage) String() string {
 	if m.acked {
 		return "true"
