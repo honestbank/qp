@@ -10,6 +10,7 @@ func kafkaConsumerConfig(applicationName string) *sarama.Config {
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_0_0_0
 	config.ClientID = applicationName
+	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.AutoCommit.Enable = false
 
 	return config
