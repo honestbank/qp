@@ -19,6 +19,6 @@ func main() {
 			Value: sarama.StringEncoder(time.Now().Format(time.RFC3339)),
 		})
 		fmt.Println(time.Now().Format(time.RFC3339))
-		time.Sleep(time.Millisecond * 500)
+		time.Sleep(time.Second * 1)
 	}
 }

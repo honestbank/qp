@@ -36,19 +36,19 @@ func (k *Message) String() string {
 }
 
 func (k *Message) As(d interface{}) error {
-	switch d.(type) {
+	switch val := d.(type) {
 	case *sarama.ConsumerMessage:
-		d = k.message
+		*val = *k.message
 
 		return nil
 	case *sarama.ProducerMessage:
 		temp, err := k.convertToProducerMessage(k.message)
-		d = temp
+		*val = *temp
 
 		return err
 	default:
 
-		return errors.New("only `*sarama.ConsumerMessage` supported currently")
+		return errors.New("only `*sarama.ConsumerMessage`, `*sarama.ProducerMessage` supported currently")
 	}
 }
 
@@ -63,7 +63,7 @@ func (k *Message) convertToProducerMessage(source *sarama.ConsumerMessage) (*sar
 
 func copyHeaders(input []*sarama.RecordHeader) []sarama.RecordHeader {
 	var result []sarama.RecordHeader
-	if input == nil {
+	if len(input) == 0 {
 		return []sarama.RecordHeader{
 			{
 				Key:   []byte("message-receive-count"),
@@ -100,7 +100,7 @@ func (k *Message) Nack() error {
 }
 
 func (k *Message) nackReproduce() error {
-	producerMessage := sarama.ProducerMessage{}
+	var producerMessage sarama.ProducerMessage
 	err := k.As(&producerMessage)
 	if err != nil {
 		return err
@@ -131,8 +131,9 @@ func (k *Message) markMessageAsDead() error {
 	if k.deadLetterTopic == nil {
 		return nil
 	}
-	producerMessage := sarama.ProducerMessage{}
+	var producerMessage sarama.ProducerMessage
 	err := k.As(&producerMessage)
+	producerMessage.Topic = *k.deadLetterTopic
 	_, _, err = k.producer.SendMessage(&producerMessage)
 
 	return err
