@@ -3,8 +3,9 @@ package kafka
 import (
 	"encoding/json"
 	"errors"
-
+	"fmt"
 	"github.com/Shopify/sarama"
+	"time"
 )
 
 type KafkaMessage struct {
@@ -42,7 +43,8 @@ func (k KafkaMessage) As(d interface{}) error {
 }
 
 func (k KafkaMessage) Ack() error {
-	(*k.session).MarkMessage(k.message, "")
+	//(*k.session).MarkMessage(k.message, "")
+
 
 	return nil
 }
@@ -70,7 +72,13 @@ func (c consumer) Cleanup(session sarama.ConsumerGroupSession) error {
 
 func (c consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
+		fmt.Println(claim.InitialOffset())
+		fmt.Println(msg.Offset)
+		session.Commit()
+		//session.MarkOffset(claim.Topic(), claim.Partition(), msg.Offset + 1, "")
 		c.messageChannel <- &KafkaMessage{message: msg, session: &session}
+		fmt.Println("sleeping...")
+		time.Sleep(1*time.Second)
 	}
 
 	return nil
