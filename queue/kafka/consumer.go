@@ -13,7 +13,6 @@ type Message struct {
 	producer        sarama.SyncProducer
 	deadLetterTopic *string
 	maxReceiveCount uint
-	readyChannel    chan bool
 }
 
 type msg struct {
@@ -82,7 +81,6 @@ func copyHeaders(input []*sarama.RecordHeader) []sarama.RecordHeader {
 
 func (k *Message) Ack() error {
 	(*k.session).MarkMessage(k.message, "")
-	k.readyChannel <- true
 
 	return nil
 }
@@ -172,7 +170,6 @@ type consumer struct {
 	producer        sarama.SyncProducer
 	deadLetterTopic *string
 	messageChannel  chan *Message
-	readyChannel    chan bool
 	maxReceiveCount uint
 }
 
@@ -190,22 +187,19 @@ func (c *consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim saram
 			message:         msg,
 			session:         &session,
 			deadLetterTopic: c.deadLetterTopic,
-			readyChannel:    c.readyChannel,
 			maxReceiveCount: c.maxReceiveCount,
 			producer:        c.producer,
 		}
-		<-c.readyChannel
 	}
 
 	return nil
 }
 
-func NewConsumer(msgChannel chan *Message, readyChannel chan bool, maxReceiveCount uint, deadLetterTopic *string, producer sarama.SyncProducer) sarama.ConsumerGroupHandler {
+func NewConsumer(msgChannel chan *Message, maxReceiveCount uint, deadLetterTopic *string, producer sarama.SyncProducer) sarama.ConsumerGroupHandler {
 	return &consumer{
 		producer:        producer,
 		deadLetterTopic: deadLetterTopic,
 		messageChannel:  msgChannel,
-		readyChannel:    readyChannel,
 		maxReceiveCount: maxReceiveCount,
 	}
 }

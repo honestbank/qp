@@ -17,14 +17,13 @@ func NewKafka(brokers []string, topic string, deadLetterTopic *string, groupID s
 	if err != nil {
 		return nil, err
 	}
-	messageChan := make(chan *kafka.Message)
-	readyChannel := make(chan bool)
+	messageChan := make(chan *kafka.Message, 10)
 
-	go func(msgChannel chan *kafka.Message, readyChannel chan bool) {
+	go func(msgChannel chan *kafka.Message) {
 		for {
-			_ = consumerGroup.Consume(context.Background(), []string{topic}, kafka.NewConsumer(messageChan, readyChannel, maxReceiveCount, deadLetterTopic, producer))
+			_ = consumerGroup.Consume(context.Background(), []string{topic}, kafka.NewConsumer(messageChan, maxReceiveCount, deadLetterTopic, producer))
 		}
-	}(messageChan, readyChannel)
+	}(messageChan)
 
 	return kafkaQueue{
 		producer:        producer,
