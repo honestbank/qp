@@ -3,13 +3,13 @@ package kafka
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/Shopify/sarama"
 )
 
-type KafkaMessage struct {
-	session *sarama.ConsumerGroupSession
-	message *sarama.ConsumerMessage
+type Message struct {
+	session      *sarama.ConsumerGroupSession
+	message      *sarama.ConsumerMessage
+	readyChannel chan bool
 }
 
 type msg struct {
@@ -19,7 +19,7 @@ type msg struct {
 	Key    string
 }
 
-func (k *KafkaMessage) String() string {
+func (k *Message) String() string {
 	m := msg{
 		Topic:  k.message.Topic,
 		Header: k.message.Headers,
@@ -31,7 +31,7 @@ func (k *KafkaMessage) String() string {
 	return string(b)
 }
 
-func (k *KafkaMessage) As(d interface{}) error {
+func (k *Message) As(d interface{}) error {
 	val, ok := d.(*sarama.ConsumerMessage)
 	if !ok {
 		return errors.New("only `*sarama.ConsumerMessage` supported currently")
@@ -41,13 +41,14 @@ func (k *KafkaMessage) As(d interface{}) error {
 	return nil
 }
 
-func (k *KafkaMessage) Ack() error {
+func (k *Message) Ack() error {
 	(*k.session).MarkMessage(k.message, "")
+	k.readyChannel <- true
 
 	return nil
 }
 
-func (k *KafkaMessage) Nack() error {
+func (k *Message) Nack() error {
 	err := k.Ack()
 
 	return err
@@ -57,7 +58,7 @@ func (k *KafkaMessage) Nack() error {
 }
 
 type consumer struct {
-	messageChannel chan *KafkaMessage
+	messageChannel chan *Message
 	readyChannel   chan bool
 }
 
@@ -71,15 +72,13 @@ func (c *consumer) Cleanup(session sarama.ConsumerGroupSession) error {
 
 func (c *consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
-		fmt.Println(claim.InitialOffset())
-		fmt.Println(msg.Offset)
-		c.messageChannel <- &KafkaMessage{message: msg, session: &session}
-		<- c.readyChannel
+		c.messageChannel <- &Message{message: msg, session: &session, readyChannel: c.readyChannel}
+		<-c.readyChannel
 	}
 
 	return nil
 }
 
-func NewConsumer(msgChannel chan *KafkaMessage, readyChannel chan bool) sarama.ConsumerGroupHandler {
+func NewConsumer(msgChannel chan *Message, readyChannel chan bool) sarama.ConsumerGroupHandler {
 	return &consumer{messageChannel: msgChannel, readyChannel: readyChannel}
 }

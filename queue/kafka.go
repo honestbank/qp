@@ -2,7 +2,6 @@ package queue
 
 import (
 	"context"
-
 	"github.com/Shopify/sarama"
 
 	"github.com/honestbank/qp/queue/kafka"
@@ -18,11 +17,14 @@ func NewKafka(brokers []string, topic string, deadLetterTopic *string, groupID s
 	if err != nil {
 		return nil, err
 	}
-	messageChan := make(chan *kafka.KafkaMessage)
-	err = consumerGroup.Consume(context.Background(), []string{topic}, kafka.NewConsumer(messageChan))
-	if err != nil {
-		return nil, err
-	}
+	messageChan := make(chan *kafka.Message)
+	readyChannel := make(chan bool)
+
+	go func(msgChannel chan *kafka.Message, readyChannel chan bool) {
+		for {
+			_ = consumerGroup.Consume(context.Background(), []string{topic}, kafka.NewConsumer(messageChan, readyChannel))
+		}
+	}(messageChan, readyChannel)
 
 	return kafkaQueue{
 		producer:        producer,
@@ -38,7 +40,7 @@ func NewKafka(brokers []string, topic string, deadLetterTopic *string, groupID s
 type kafkaQueue struct {
 	producer        sarama.SyncProducer
 	consumer        sarama.ConsumerGroup
-	messages        chan *kafka.KafkaMessage
+	messages        chan *kafka.Message
 	deadLetterTopic *string
 	groupID         string
 	maxReceiveCount int
