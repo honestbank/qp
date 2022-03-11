@@ -7,7 +7,7 @@ import (
 	"github.com/honestbank/qp/queue/kafka"
 )
 
-func NewKafka(brokers []string, topic string, deadLetterTopic *string, groupID string, applicationName string, maxReceiveCount int) (Queue, error) {
+func NewKafka(brokers []string, topic string, deadLetterTopic *string, groupID string, applicationName string, maxReceiveCount uint) (Queue, error) {
 	producer, err := kafka.GetProducer(brokers, applicationName)
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func NewKafka(brokers []string, topic string, deadLetterTopic *string, groupID s
 
 	go func(msgChannel chan *kafka.Message, readyChannel chan bool) {
 		for {
-			_ = consumerGroup.Consume(context.Background(), []string{topic}, kafka.NewConsumer(messageChan, readyChannel))
+			_ = consumerGroup.Consume(context.Background(), []string{topic}, kafka.NewConsumer(messageChan, readyChannel, maxReceiveCount, deadLetterTopic, producer))
 		}
 	}(messageChan, readyChannel)
 
@@ -31,7 +31,6 @@ func NewKafka(brokers []string, topic string, deadLetterTopic *string, groupID s
 		consumer:        consumerGroup,
 		deadLetterTopic: deadLetterTopic,
 		groupID:         groupID,
-		maxReceiveCount: maxReceiveCount,
 		topic:           topic,
 		messages:        messageChan,
 	}, nil
@@ -43,7 +42,6 @@ type kafkaQueue struct {
 	messages        chan *kafka.Message
 	deadLetterTopic *string
 	groupID         string
-	maxReceiveCount int
 	topic           string
 }
 
