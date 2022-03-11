@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Shopify/sarama"
-	"time"
 )
 
 type KafkaMessage struct {
@@ -20,7 +19,7 @@ type msg struct {
 	Key    string
 }
 
-func (k KafkaMessage) String() string {
+func (k *KafkaMessage) String() string {
 	m := msg{
 		Topic:  k.message.Topic,
 		Header: k.message.Headers,
@@ -32,7 +31,7 @@ func (k KafkaMessage) String() string {
 	return string(b)
 }
 
-func (k KafkaMessage) As(d interface{}) error {
+func (k *KafkaMessage) As(d interface{}) error {
 	val, ok := d.(*sarama.ConsumerMessage)
 	if !ok {
 		return errors.New("only `*sarama.ConsumerMessage` supported currently")
@@ -42,14 +41,13 @@ func (k KafkaMessage) As(d interface{}) error {
 	return nil
 }
 
-func (k KafkaMessage) Ack() error {
-	//(*k.session).MarkMessage(k.message, "")
-
+func (k *KafkaMessage) Ack() error {
+	(*k.session).MarkMessage(k.message, "")
 
 	return nil
 }
 
-func (k KafkaMessage) Nack() error {
+func (k *KafkaMessage) Nack() error {
 	err := k.Ack()
 
 	return err
@@ -60,30 +58,28 @@ func (k KafkaMessage) Nack() error {
 
 type consumer struct {
 	messageChannel chan *KafkaMessage
+	readyChannel   chan bool
 }
 
-func (c consumer) Setup(session sarama.ConsumerGroupSession) error {
+func (c *consumer) Setup(session sarama.ConsumerGroupSession) error {
 	return nil
 }
 
-func (c consumer) Cleanup(session sarama.ConsumerGroupSession) error {
+func (c *consumer) Cleanup(session sarama.ConsumerGroupSession) error {
 	return nil
 }
 
-func (c consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+func (c *consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
 		fmt.Println(claim.InitialOffset())
 		fmt.Println(msg.Offset)
-		session.Commit()
-		//session.MarkOffset(claim.Topic(), claim.Partition(), msg.Offset + 1, "")
 		c.messageChannel <- &KafkaMessage{message: msg, session: &session}
-		fmt.Println("sleeping...")
-		time.Sleep(1*time.Second)
+		<- c.readyChannel
 	}
 
 	return nil
 }
 
-func NewConsumer(channel chan *KafkaMessage) sarama.ConsumerGroupHandler {
-	return consumer{messageChannel: channel}
+func NewConsumer(msgChannel chan *KafkaMessage, readyChannel chan bool) sarama.ConsumerGroupHandler {
+	return &consumer{messageChannel: msgChannel, readyChannel: readyChannel}
 }

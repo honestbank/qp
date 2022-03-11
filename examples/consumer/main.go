@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/honestbank/qp/examples"
 	"github.com/honestbank/qp/queue/kafka"
+	"time"
 )
 
 // func main() {
@@ -24,7 +25,7 @@ import (
 // }
 
 func main() {
-	consumerGroup, err := kafka.GetConsumer([]string{"localhost:9092"}, "my-app", "group-a")
+	consumerGroup, err := kafka.GetConsumer([]string{"localhost:9092"}, "whatsapp", "group-b")
 	if err != nil {
 		panic(err)
 	}
@@ -38,12 +39,22 @@ func main() {
 		}
 	}()
 
-	channel := make(chan *kafka.KafkaMessage)
-	go func(channel chan *kafka.KafkaMessage) {
-		consumerGroup.Consume(context.Background(), []string{examples.Topic}, kafka.NewConsumer(channel))
-	}(channel)
+	msgChannel := make(chan *kafka.KafkaMessage)
+	readyChannel := make(chan bool)
+	go func(msgChannel chan *kafka.KafkaMessage, readyChannel chan bool) {
+		for {
+			err := consumerGroup.Consume(context.Background(), []string{examples.Topic}, kafka.NewConsumer(msgChannel, readyChannel))
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}(msgChannel, readyChannel)
 
 	for {
-		fmt.Println((<-channel).String())
+		msg := <-msgChannel
+		fmt.Println((msg).String())
+		time.Sleep(1*time.Second)
+		msg.Ack()
+		readyChannel <- true
 	}
 }

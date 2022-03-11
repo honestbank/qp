@@ -1,3 +1,3 @@
 package examples
 
-const Topic = "topic-a"
+const Topic = "topic-c"

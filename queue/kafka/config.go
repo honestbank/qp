@@ -11,7 +11,6 @@ func kafkaConsumerConfig(applicationName string) *sarama.Config {
 	config.Version = sarama.V2_0_0_0
 	config.ClientID = applicationName
 	config.Consumer.Return.Errors = true
-	config.Consumer.Offsets.AutoCommit.Enable = false
 	config.Consumer.Offsets.Initial = sarama.OffsetOldest
 
 	return config
