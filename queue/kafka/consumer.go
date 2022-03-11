@@ -15,16 +15,16 @@ type KafkaMessage struct {
 type msg struct {
 	Topic  string
 	Header []*sarama.RecordHeader
-	Body   []byte
-	Key    []byte
+	Body   string
+	Key    string
 }
 
 func (k KafkaMessage) String() string {
 	m := msg{
 		Topic:  k.message.Topic,
 		Header: k.message.Headers,
-		Body:   k.message.Value,
-		Key:    k.message.Key,
+		Body:   string(k.message.Value),
+		Key:    string(k.message.Key),
 	}
 	b, _ := json.Marshal(m)
 
