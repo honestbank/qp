@@ -1,0 +1,14 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: qp
+  description: provided a user defined function, qp passes each message in a queue through that function
+    annotations:
+      github.com/project-slug: honestbank/qp
+      sonarqube.org/project-key: honestbank_qp
+spec:
+  type: library
+  lifecycle:
+    owner: "user:cyberhck"
+
