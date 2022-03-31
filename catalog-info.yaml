@@ -11,4 +11,4 @@ spec:
   type: library
   lifecycle:
     owner: "user:cyberhck"
-
+  dependsOn: ["component:backoff-policy"]
