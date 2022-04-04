@@ -7,8 +7,12 @@ metadata:
   annotations:
     github.com/project-slug: honestbank/qp
     sonarqube.org/project-key: honestbank_qp
+  tags:
+    - golang
+    - user:cyberhck
 spec:
   type: library
-  lifecycle: prod
-  owner: "user:cyberhck"
-  dependsOn: ["component:backoff-policy"]
+  lifecycle: production
+  owner: spend-squad
+  dependsOn: 
+    - component:backoff-policy
