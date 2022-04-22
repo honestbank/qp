@@ -173,11 +173,13 @@ Temporary Items
 #
 # Added in here as commented, as it's best practice according to hashicorp to include, however, if we do not plan to review dependencies, it could be ignored.
 
-# .terraform.lock.hcl
-#  **/.terraforrm.lock.hcl
+.terraform.lock.hcl
+**/.terraforrm.lock.hcl
 
 # .tfstate files
+**/*.tfstate
 *.tfstate
+**/*.tfstate.*
 *.tfstate.*
 
 # Crash log files
