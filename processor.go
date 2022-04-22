@@ -48,7 +48,7 @@ func (j *job) registerKillSignal() {
 }
 
 func (j *job) eventLoop(marker backoffPolicy.Marker) {
-	fmt.Printf("worker running at: %s\n", time.Now().Format(time.RFC3339))
+	fmt.Printf("worker running at: %s\n", time.Now().Format(time.RFC3339)) //nolint:forbidigo
 	msg, err := j.provider.Peek()
 	if err != nil {
 		marker.MarkFailure()
@@ -58,7 +58,7 @@ func (j *job) eventLoop(marker backoffPolicy.Marker) {
 	}
 	if msg == nil {
 		// no messages yet, it's not a failure or a success so no marking required.
-		fmt.Println("no messages at this time")
+		fmt.Println("no messages at this time") //nolint:forbidigo
 
 		return
 	}
