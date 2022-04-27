@@ -33,7 +33,7 @@ func (m message) Ack() error {
 	return m.ack(handle)
 }
 
-func (s q) Peek() (Message, error) {
+func (s *q) Peek() (Message, error) {
 	msg, err := s.queueClient.ReceiveMessage(context.TODO(), &sqs.ReceiveMessageInput{
 		QueueUrl:              s.queueURL,
 		MaxNumberOfMessages:   1,
@@ -42,6 +42,15 @@ func (s q) Peek() (Message, error) {
 		MessageAttributeNames: []string{"All"},
 	})
 	if err != nil {
+		cfg, err := config.LoadDefaultConfig(context.TODO())
+		if err != nil {
+			// still doesn't work? that's weird.
+			return nil, err
+		}
+		client := sqs.NewFromConfig(cfg)
+		s.queueClient = client
+
+		// still return error so that it logs.
 		return nil, err
 	}
 	if len(msg.Messages) == 0 {
