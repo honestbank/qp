@@ -458,3 +458,6 @@ mocks
 # test log file
 coverage.txt
 coverage.tmp
+
+# Grafana tempo files (https://grafana.com/oss/tempo/)
+**/tempo-data/**
