@@ -9,10 +9,9 @@ metadata:
     sonarqube.org/project-key: honestbank_qp
   tags:
     - golang
-    - user:cyberhck
 spec:
   type: library
   lifecycle: production
-  owner: spend-squad
+  owner: group:spend-squad
   dependsOn: 
     - component:backoff-policy
