@@ -10,4 +10,5 @@ type Message interface {
 	fmt.Stringer
 	As(d interface{}) error
 	Ack() error
+	Nack() error
 }

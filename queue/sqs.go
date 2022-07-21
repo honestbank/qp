@@ -19,6 +19,10 @@ type message struct {
 	ack     func(handle *string) error
 }
 
+func (m message) Nack() error {
+	return nil
+}
+
 func (m message) String() string {
 	return *m.payload.Body
 }
