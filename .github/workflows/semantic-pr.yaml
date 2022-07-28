@@ -16,3 +16,18 @@ jobs:
         name: Semantic Pull Request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: feat - verify design doc link
+        run: |
+          if [[ "${{ github.event.pull_request.title }}" == "feat:"* ]]; then
+            echo "Pull request title starts with feat:";
+            regex='design doc: \[.+?\]\(https://www.notion.so/honestbank/.+?\)'
+            if [[ "${{ github.event.pull_request.body }}" =~ $regex ]]; then
+              echo "Pull request body contains link to a design doc 🚀";
+            else
+              echo "Pull request does not contain a design document link - please attach the relevant design doc! Refer to https://www.notion.so/honestbank/Engineering-Design-Documents-9681402a62514306876458686bfd4157";
+              exit 1;
+            fi;
+          else
+            echo "Pull request is not a feature, skipping design doc check";
+          fi
