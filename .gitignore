@@ -34,6 +34,7 @@
 
 # NUCLEAR OPTION - EXCLUDES ALL JETBRAINS IDE FILES
 **/.idea/**
+.idea/**
 
 # User-specific stuff
 .idea/**/workspace.xml
