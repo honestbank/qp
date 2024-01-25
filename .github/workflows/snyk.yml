@@ -1,0 +1,22 @@
+name: snyk-go
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  repository-snyk-go:
+    name: repository-snyk-go
+    uses: honestbank/workflows/.github/workflows/shared-snyk-go.yaml@main
+    with:
+      org_id: 8a07b336-2638-4096-8c8c-25f891be99e8
+    secrets: inherit
