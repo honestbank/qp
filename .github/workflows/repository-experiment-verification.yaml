@@ -1,0 +1,17 @@
+# yamllint disable rule:line-length
+# Use template from https://github.com/honestbank/workflows/tree/main/examples/repository-workflows
+---
+name: "repository-experiment-verification"
+permissions: read-all
+
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+    branches: [main]
+
+jobs:
+  repository-experiment-verification:
+    name: repository-experiment-verification
+    uses: honestbank/workflows/.github/workflows/shared-experiment-verification.yaml@main
+    secrets: inherit
+    with:
+      experiment_required: false

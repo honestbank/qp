@@ -1,20 +1,43 @@
 # DO NOT CHANGE. This file is being managed from a central repository
 # To know more simply visit https://github.com/honestbank/.github/blob/main/docs/about.md
 
+default_install_hook_types: [commit-msg]
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.5.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-yaml
+        args: [ '--allow-multiple-documents' ]
       - id: detect-aws-credentials
         args: [ '--allow-missing-credentials' ]
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.45.2
+    rev: v1.56.2
     hooks:
       - id: golangci-lint
   - repo: https://github.com/TekWizely/pre-commit-golang
-    rev: v0.8.2
+    rev: v1.0.0-rc.1
     hooks:
       - id: go-imports
+  - repo: https://github.com/gitguardian/ggshield
+    rev: v1.19.1
+    hooks:
+      - id: ggshield
+        language: python
+        stages: [commit]
+        args: [ 'secret', 'scan', 'pre-commit' ]
+  - repo: local
+    hooks:
+      - id: generate-catalog
+        name: generate-catalog
+        entry: ./catalog-info.generator.sh
+        language: script
+        pass_filenames: false
+      - id: commit-msg-spell-check
+        name: commit-msg-spell-check
+        entry: ./spell-check.sh
+        language: script
+        stages: ['commit-msg']
+        always_run: true
